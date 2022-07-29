@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<error-handler name="common-error-handler" doc:id="93b8a46d-4348-4e46-a4d5-5fab4b594367" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="1f2fa0c3-cd3b-4014-b7d5-8141d70c6411" type="HTTP:BAD_REQUEST">
+			<ee:transform doc:name="Transform Message" doc:id="f91064a3-67c3-4dc0-b809-87867f664583">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	errorDescription:error.description,
+	errorDetailedDesc : error.detailedDescription,
+	errorType:error.errorType.identifier
+}]]></ee:set-payload>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="httpStatus"><![CDATA[400]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Transform Message" doc:id="6501c73e-4638-42b7-9cda-756ff2feed63" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml writeDeclaration=false
+---
+html:{
+    body : {
+    table @(border:1):{
+        tr: payload mapObject ((value, key, index) -> {"th": key}),
+        tr: payload  mapObject (value,key,index) ->   {"td" : value} 
+        }
+    }}
+]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="Flow Ref: netsuite-prc-apiSub_Flow" doc:id="ce1d99d8-97de-49f7-9c51-d3bb4a7fb91b" name="netsuite-prc-apiSub_Flow"/>
+		
+</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="0046146e-6123-488a-b84a-ba663508b191" type=" HTTP:INTERNAL_SERVER_ERROR">
+			<ee:transform doc:name="Transform Message" doc:id="5321cacc-3eb0-4197-b924-f88e2abd70dc">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	errorDescription:error.description,
+	errorDetailedDesc : error.detailedDescription,
+	errorType:error.errorType.identifier
+}]]></ee:set-payload>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="httpStatus"><![CDATA[500]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Transform Message" doc:id="bbb3cd0b-08d3-42f5-901b-3bc847e23ebf" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml writeDeclaration=false
+---
+html:{
+    body : {
+    table @(border:1):{
+        tr: payload mapObject ((value, key, index) -> {"th": key}),
+        tr: payload  mapObject (value,key,index) ->   {"td" : value} 
+        }
+    }}
+]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="Flow Ref: netsuite-prc-apiSub_Flow" doc:id="1e08536f-897b-4913-9eef-1fa52abedd83" name="netsuite-prc-apiSub_Flow"/>
+		
+</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="4acc1278-f112-43af-a6c8-dd66867cdebe" type="HTTP:NOT_FOUND">
+			<ee:transform doc:name="Transform Message" doc:id="9947ec64-e9c4-4077-b94f-c48a7142d135">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	errorDescription:error.description,
+	errorDetailedDesc : error.detailedDescription,
+	errorType:error.errorType.identifier
+}]]></ee:set-payload>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="httpStatus"><![CDATA[404]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Transform Message" doc:id="9dc40e19-b248-4fa1-8cd6-2ab1a21e492e" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml writeDeclaration=false
+---
+html:{
+    body : {
+    table @(border:1):{
+        tr: payload mapObject ((value, key, index) -> {"th": key}),
+        tr: payload  mapObject (value,key,index) ->   {"td" : value} 
+        }
+    }}
+]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="Flow Ref: netsuite-prc-apiSub_Flow" doc:id="40d7c08d-3f1a-4644-be16-df2164dc5ea1" name="netsuite-prc-apiSub_Flow"/>
+		
+</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="dab092d4-c586-415c-b9df-11c2fc2c01d0" type="HTTP:METHOD_NOT_ALLOWED">
+			<ee:transform doc:name="Transform Message" doc:id="4bb8538e-8f46-455b-b1b1-6617d504bbe9">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	errorDescription:error.description,
+	errorDetailedDesc : error.detailedDescription,
+	errorType:error.errorType.identifier
+}]]></ee:set-payload>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="httpStatus"><![CDATA[405]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Transform Message" doc:id="940757be-d31c-4cf8-955a-ec96deda0316" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml writeDeclaration=false
+---
+html:{
+    body : {
+    table @(border:1):{
+        tr: payload mapObject ((value, key, index) -> {"th": key}),
+        tr: payload  mapObject (value,key,index) ->   {"td" : value} 
+        }
+    }}
+]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="Flow Ref: netsuite-prc-apiSub_Flow" doc:id="0493fa2b-3d8b-42d2-b790-00bbb204b9f5" name="netsuite-prc-apiSub_Flow"/>
+		
+</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="231f352a-1da9-40d8-81ae-dc393f41deb9" type="HTTP:FORBIDDEN">
+			<ee:transform doc:name="Transform Message" doc:id="e8d33d77-75b5-40dd-834d-668229727485">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	errorDescription:error.description,
+	errorDetailedDesc : error.detailedDescription,
+	errorType:error.errorType.identifier
+}]]></ee:set-payload>
+				</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="httpStatus"><![CDATA[403]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="Transform Message" doc:id="85289875-d2d8-459a-a4d9-533dea31ef79" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml writeDeclaration=false
+---
+html:{
+    body : {
+    table @(border:1):{
+        tr: payload mapObject ((value, key, index) -> {"th": key}),
+        tr: payload  mapObject (value,key,index) ->   {"td" : value} 
+        }
+    }}
+]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="Flow Ref: netsuite-prc-apiSub_Flow" doc:id="06cf8dae-af37-496a-b031-f7cf67dc51e9" name="netsuite-prc-apiSub_Flow"/>
+		
+</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="251f641c-4517-42d5-bfe1-b3925ff31a90" type="ANY">
+			<ee:transform doc:name="Transform Message" doc:id="3211ad3e-9729-4afd-adb4-eccf907ba436">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	errorDescription:error.description,
+	errorDetailedDesc : error.detailedDescription,
+	errorType:error.errorType.identifier
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<ee:transform doc:name="Transform Message" doc:id="2dcf54a6-d578-4bba-af59-b734626dd225" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml writeDeclaration=false
+---
+html:{
+    body : {
+    table @(border:1):{
+        tr: payload mapObject ((value, key, index) -> {"th": key}),
+        tr: payload  mapObject (value,key,index) ->   {"td" : value} 
+        }
+    }}
+]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<flow-ref doc:name="Flow Ref: netsuite-prc-apiSub_Flow" doc:id="925baa3d-117a-4443-957a-8f2c5c3429e3" name="netsuite-prc-apiSub_Flow"/>
+		
+</on-error-propagate>
+	</error-handler>
+	
+	</mule>

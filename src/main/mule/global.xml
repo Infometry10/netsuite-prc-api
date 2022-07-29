@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="40157db1-a12d-4313-9bd7-bd042a388515" >
+		<http:listener-connection protocol="HTTPS" host="0.0.0.0" port="${secure::https.port}" >
+			<tls:context >
+				<tls:key-store type="jks" path="mule.jks" keyPassword="password" password="password" />
+			</tls:context>
+		</http:listener-connection>
+	</http:listener-config>
+	<http:request-config name="Netsuite_Http_Request_Config" doc:name="HTTP Request configuration" doc:id="3c87c20f-2aec-428d-bb42-578204e69f8e" basePath="/${secure::netsuite.sys.api.basePath}" >
+		<http:request-connection host="${secure::netsuite.sys.api.host}" port="${secure::netsuite.sys.api.port}" />
+	</http:request-config>
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="4a8c612c-85f2-455f-9f4e-7d6dbe4c740a" maxEntries="1000" entryTtl="15" expirationInterval="20"/>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="f4dd5928-06c6-43d7-862c-fce3852b8770" file="config\netsuite-prc-api-${env}.yaml" key="${enc.key}"/>
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="2665d1d0-98cd-4c0f-ab7e-e8453a7bd84a" >
+		<jms:active-mq-connection username="${secure::jms.username}" password="${secure::jms.password}" clientId="${secure::jms.client_id}">
+			<jms:factory-configuration brokerUrl="${secure::jms.broker_url}" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<configuration doc:name="Configuration" doc:id="3102f95b-31c5-426b-8583-385cea8f8b49" defaultErrorHandler-ref="common-error-handler" />
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="b798e014-00b1-4b60-975b-08766c80fb60" >
+		<email:smtp-connection host="${secure::smtp.host}" port="${secure::smtp.port}" user="${secure::smtp.user}" password="${secure::smtp.password}" >
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+</mule>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+	<flow name="netsuite-prc-apiFlow" doc:id="306ec11a-82c6-41f4-93ef-41dc52252226" >
+		<http:listener doc:name="/netsuite/items" doc:id="02cb17d6-263b-44fa-b045-c4dba847a719" config-ref="HTTP_Listener_config" path="/netsuite/items"/>
+		<os:retrieve doc:name="execTime" doc:id="f7a18fc9-1809-4520-985e-6d06134298c9" key="execTime" target="LastExecTime" objectStore="Object_store">
+			<os:default-value ><![CDATA[#["2020-07-19T11:17:45.813317Z" as DateTime as String{format:"yyyy-MM-dd'T'hh:mm:ss.SSS'-07:00'"}]]]></os:default-value>
+		</os:retrieve>
+		<set-variable value="#[now() as DateTime as String{format:&quot;yyyy-MM-dd'T'hh:mm:ss.SSS'-07:00'&quot;}]" doc:name="currentExecTime" doc:id="3838069a-0d80-4641-b243-29d8b3832eb2" variableName="currentExecTime"/>
+		<http:request method="GET" doc:name="netsuite" doc:id="83f3dc93-4929-4d97-8115-f3dea60ea02a" config-ref="Netsuite_Http_Request_Config" path="/netsuite/search">
+			<http:headers ><![CDATA[#[output application/json
+---
+{
+	client_secret :  Mule::p('secure::netsuite.sys.api.client_secret'),
+	client_id : Mule::p('secure::netsuite.sys.api.client_id')
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"operator" : "after",
+	"time" : vars.LastExecTime,
+	"searchKey" : "ItemSearchBasic"
+}]]]></http:query-params>
+		</http:request>
+		<foreach doc:name="For Each" doc:id="a7be264e-b747-4dd8-9821-ed409a7380f0" >
+			<jms:publish doc:name="Publish" doc:id="6b79eeaa-7690-4d57-9df0-c803b366f952" config-ref="JMS_Config" destination="${secure::jms.destination}" destinationType="TOPIC" />
+		</foreach>
+		<os:store doc:name="execTime" doc:id="5daa4ebd-1156-4b73-b882-54e3f7ca5305" key="execTime" objectStore="Object_store">
+			<os:value ><![CDATA[#[vars.currentExecTime]]]></os:value>
+		</os:store>
+	</flow>
+	<sub-flow name="netsuite-prc-apiSub_Flow" doc:id="f7ff0e52-d177-4286-ac28-36ab54a673f8" >
+		<email:send doc:name="if error occurs" doc:id="4e9e7442-ae65-4448-bdc2-12317b23fc4f" config-ref="Email_SMTP" fromAddress="#[Mule::p('secure::smtp.fromAddress')]" subject="error">
+			<email:to-addresses >
+				<email:to-address value="${secure::smtp.toAddress}" />
+			</email:to-addresses>
+		</email:send>
+	</sub-flow>
+</mule>
